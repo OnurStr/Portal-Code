@@ -1,0 +1,39 @@
+if (getItemDef(world->items[x + (y * world->width)].foreground).blockType == BlockTypes::PORTAL)
+	{
+		if (world->owner != "") {
+			if (((PlayerInfo*)(peer->data))->rawName == world->owner) {
+				if (tile == 32) {
+					((PlayerInfo*)(peer->data))->wrenchsession = x + (y * world->width);
+					WorldItem item = world->items[x + (y * world->width)];
+					string a = item.destWorld + ":" + item.destId;
+					if (a == ":") a = "";
+					if (item.foreground == 546)
+					{
+						GamePacket p = packetEnd(appendString(appendString(createPacket(), "OnDialogRequest"), "set_default_color|`o\n\nadd_label_with_icon|big|`wEdit Portal``|left|" + to_string(item.foreground) + "|\|\n\nadd_text_input|dest|`oTarget World|" + a + "|100|\nadd_text_input|label|Display Label (optional)|" + item.label + "|100|\nadd_text_input|portalid|ID (optional)|" + item.currId + "|35|\nend_dialog|editprdoor|Cancel|OK|"));
+						ENetPacket* packet = enet_packet_create(p.data,
+							p.len,
+							ENET_PACKET_FLAG_RELIABLE);
+						enet_peer_send(peer, 0, packet);
+						delete p.data;
+					}
+				}
+			}
+		}
+	}
+	string name = getItemDef(world->items[x + (y * world->width)].foreground).name;
+	int id = getItemDef(world->items[x + (y * world->width)].foreground).id;
+	if (getItemDef(world->items[x + (y * world->width)].foreground).blockType == BlockTypes::GATEWAY) {
+		if (tile == 32) {
+			if (((PlayerInfo*)(peer->data))->rawName == world->owner) {
+
+				((PlayerInfo*)(peer->data))->wrenchx = x;
+				((PlayerInfo*)(peer->data))->wrenchy = y;
+				if (world->items[x + (y * world->width)].isOpened == false) {
+					packet::OnDialogRequest(peer, "add_label_with_icon|big|" + name + "|left|" + to_string(id) + "|\nadd_spacer|small|\nadd_checkbox|opentopublic|`ois Open to Public?|0|\nend_dialog|entrance||OK|\n");
+				}
+				else {
+					packet::OnDialogRequest(peer, "add_label_with_icon|big|" + name + "|left|" + to_string(id) + "|\nadd_spacer|small|\nadd_checkbox|opentopublic|`ois Open to Public?|1|\nend_dialog|entrance||OK|\n");
+				}
+			}
+		}
+	}
